@@ -1,0 +1,5 @@
+we can use Pybullet for 3d visualization and maybe PythonRobotics for algorythims
+
+reference:
+Pybullet: https://www.reddit.com/r/robotics/comments/dykls1/q_what_visualization_librariestools_do_you/
+PythonRobotics: https://github.com/AtsushiSakai/PythonRobotics
