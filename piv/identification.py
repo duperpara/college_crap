@@ -2,6 +2,7 @@ import pandas as pd
 import pprint
 import control
 
+control.phaseplot.box_grid(50,50)
 
 def run():
     full_series = pd.read_csv('de_10_em_10.csv', sep=';')['Output']
