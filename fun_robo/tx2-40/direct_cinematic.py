@@ -28,10 +28,10 @@ def table_def(di_str: str = 'di', get_di=False):
     di_di = {
         'reduced_altered_di': {
             "elo": [1, 2, 3],
-            "theta": [symbols("θ1"), symbols("θ2") - pi / 2, symbols("θ3")],
-            "alpha": [-pi / 2, 0, 0],
+            "theta": [symbols("θ1"), symbols("θ2") - acos(0), symbols("θ3")],
+            "alpha": [acos(0), 0, 0],
             "a": [0, Lb, Lb],
-            "d": [Lb, 35, 0],
+            "d": [La, Ld, 0],
         },
         'di': {
             "elo": [1, 2, 3, 4, 5, 6],
