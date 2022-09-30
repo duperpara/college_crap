@@ -1,3 +1,5 @@
+import math
+
 from sympy import Symbol, sqrt, solve, derive_by_array, symbols
 
 
@@ -16,8 +18,7 @@ class Eq:
 
 def flow_rate_equations():
     h, A, dt, U, K, a, g, ro, Ve, Vs, v, pf, c1, c2, h0, U0 = symbols(
-        'h, A, dt, U, K, a, g, ro, Ve, Vs, v, pf, c1, c2, h0, U0',
-        real=True, positive=True)
+        'h, A, dt, U, K, a, g, ro, Ve, Vs, v, pf, c1, c2, h0, U0')
     d, H, Ul, s, Delta_h, Delta_U, alpha, tau, Ke = symbols('d, H, Ul, s, Delta_h, Delta_U, alpha, tau, Ke')
 
     eq_statements = {}
@@ -85,57 +86,40 @@ def flow_rate_equations():
     eq_statements['laplace_tau_Ke_subs_simplify'] = Eq(
         Delta_h, Ke * Delta_U / (tau * s + 1)
     )
+    eq_statements['tf'] = Eq(
+        Delta_h / Delta_U, Ke / (tau * s + 1)
+    )
 
-    # taylor_funs = h_linearize(0, 180, [0.2, 0.4, 0.6, 0.8, 1], h, sqrt(h))
-    # eq_statements['sqrt_h_linearization'] = (Eq(
-    #     sqrt(h),
-    #     taylor_funs[2]
-    # ))
-    # eq_statements['dhdt_flow_detailed2'] = (Eq(
-    #     dh / dt,
-    #     (eq_statements.get('in_flow').right_side
-    #      - eq_statements.get('out_flow2').right_side.subs(sqrt(h), eq_statements.get('sqrt_h_linearization').right_side)
-    #      )/A
-    # ))
-    # eq_statements['dhdt_flow_laplace'] = (Eq(
-    #     H*s,
-    #     ((eq_statements.get('in_flow').right_side
-    #      - eq_statements.get('out_flow2').right_side.subs(sqrt(h), eq_statements.get('sqrt_h_linearization').right_side)
-    #      )/A).subs(h, H*s).subs(U, Ul*s)
-    # ))
-    # eq_statements['dhdt_flow_laplace'] = (Eq(
-    #     c1*h + c2,
-    #     taylor_funs[2]
-    # ))
-    # eq_statements['dhdt_flow_laplace2'] = (Eq(
-    #     H,
-    #     K*Ul/(A-sqrt(2*g)*a*c1) - (1/s)*(sqrt(2*g)*a*c2/(A-sqrt(2*g)*a*c1))
-    # ))
 
     for name, eq in eq_statements.items():
         print(f'{name}: {eq}')
     return eq_statements
 
 
-def h_linearize(min_height, max_height, taylor_range, h, h_fun):
-    print(h_fun)
-    delta_h = max_height - min_height
-    taylor_targets = [min_height + (delta_h * p) for p in taylor_range]
-    print(f"{taylor_targets = }")
+def evaluate_tf_constants(equations: dict, *, h0, a, A, K, g=9.806):
+    alpha, tau, Ke, h0_var, a_var, A_var, K_var, g_var = symbols('alpha, tau, Ke, h0, a, A, K, g')
+    subs_dict = {
+        h0_var: h0,
+        a_var: a,
+        A_var: A,
+        K_var: K,
+        g_var: g
+    }
 
-    taylor_funs = []
-    for taylor_target in taylor_targets:
-        expr_1 = h_fun.subs(h, taylor_target)
-        expr_2 = derive_by_array(h_fun, h).subs(h, taylor_target) * (h - taylor_target)
-        # print(f'{expr_1 = }')
-        # print(f'{expr_2 = }')
+    def make_subs(eq):
+        for var, val in subs_dict.items():
+            eq = eq.subs(var, val)
+        return eq
+    alpha_val = make_subs(equations.get('alpha_subs').right_side)
+    subs_dict[alpha] = alpha_val
 
-        taylor_fun = expr_1 + expr_2
-        # print(f'{taylor_fun = }')
-        taylor_funs.append(taylor_fun)
+    tau_val = make_subs(equations.get('tau_subs').right_side)
+    subs_dict[tau] = tau_val
 
-    # print(taylor_funs)
-    return taylor_funs
+    Ke_val = make_subs(equations.get('Ke_subs').right_side)
+    subs_dict[Ke] = Ke_val
+
+    return make_subs(equations.get('tf').right_side).subs(sqrt(2), math.sqrt(2))
 
 
 if __name__ == '__main__':
