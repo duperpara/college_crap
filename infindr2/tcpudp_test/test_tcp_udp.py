@@ -52,8 +52,9 @@ def tcp_down(host, port, file, out_path, prefix):
 
 
 def run(in_path, file_names, out_path, host, tcp_port, udp_port, qt_itr: int):
-    hash_li = []
+    hash_di = {}
     for file_name in file_names:
+        hash_di[file_name] = []
         for itr in range(0, qt_itr):
             os.system('cls')
             print(f'{file_name} {itr+1}/{qt_itr}')
@@ -62,8 +63,9 @@ def run(in_path, file_names, out_path, host, tcp_port, udp_port, qt_itr: int):
             server_hash = tcp_get_hash(host, tcp_port, file_name)
             download_hash = tcp_down(
                 host, tcp_port, os.path.join(out_path, file_name), out_path, prefix=str(itr))
-            hash_li.append((str(itr) + file_name, local_hash, server_hash, download_hash))
-    return hash_li
+            hash_di[file_name].append((str(itr) + file_name, local_hash, server_hash, download_hash))
+
+    return hash_di
 
 def get_digest(file_path):
     h = hashlib.sha256()
@@ -80,8 +82,6 @@ def get_digest(file_path):
 
 if __name__ == '__main__':
     resources_path = r'C:\Users\luiz\PycharmProjects\college_crap\infindr2\tcpudp_test\resources'
-    resouce_files = ['batata_media.jpg']
-
     output_path = r'C:\Users\luiz\PycharmProjects\college_crap\infindr2\tcpudp_test\output'
 
     host = '200.135.184.51'
@@ -89,5 +89,6 @@ if __name__ == '__main__':
     udp_port = 8000
 
     data = run(resources_path, resouce_files, output_path, host, tcp_port, udp_port, qt_itr=100)
-    df = pd.DataFrame(data, columns=['file_name', 'local_hash', 'server_hash', 'download_hash'])
-    df.to_csv(os.path.join(output_path, 'resultados.csv'))
+    for name, file_data in data.items():
+        df = pd.DataFrame(file_data, columns=['file_name', 'local_hash', 'server_hash', 'download_hash'])
+        df.to_csv(os.path.join(output_path, f'{name}_resultados.csv'))
