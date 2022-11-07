@@ -2,6 +2,7 @@ import pandas as pd
 import pprint
 import control
 
+
 def run():
     full_series = pd.read_csv('de_10_em_10.csv', sep=';')['Output']
     print(full_series)
@@ -43,7 +44,7 @@ def run():
     delta_h_data_di = calculate_yts(delta_h_data_di)
     delta_h_data_di = calculate_tau(delta_h_data_di)
     delta_h_data_di = calculate_teta(delta_h_data_di)
-    delta_h_data_di = calculate_kp(delta_h_data_di)
+    # delta_h_data_di = calculate_kp(delta_h_data_di)
     delta_h_data_di = calculate_tf(delta_h_data_di)
 
     print(delta_h_data_di)
@@ -112,6 +113,7 @@ def calculate_tf(di):
         tau_SM = value.get('tau_SM')
         di[key]['tf'] = control.tf(k, [tau_SM, 1])
     return di
+
 
 if __name__ == '__main__':
     run()
