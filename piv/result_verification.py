@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pandas as pd
 import os
 from scipy.signal import lfilter
@@ -29,23 +31,25 @@ def convolute(series: pd.Series, conv_size: int = 2):
     return pd.Series(li, name=series.name)
 
 
-def linfilter(series: pd.Series, smothness: int):
+def linfilter(series: pd.Series, smothness: int) -> pd.Series:
     # the larger smothness is, the smoother curve will be
     b = [1.0 / smothness] * smothness
     a = 1
-    return lfilter(b, a, series)
+    return pd.Series(lfilter(b, a, series), name=series.name)
 
 
-def get_vreg(series: pd.Series, delta: float = 0.05):
-    print(series.mean())
+def get_vreg(series: pd.Series, delta: float = 0.05, linfilter_sothness: int = 5,
+             return_smoth_series: bool = False) -> Tuple[int, float] or Tuple[int, float, pd.Series]:
+    series = linfilter(series, linfilter_sothness)
     for idx, value in series.iloc[::1].items():
         local_s = series[idx:]
         mean = local_s.mean()
-        # print((local_s-mean > delta*mean))
-        # print((local_s-mean < -delta*mean))
         if all((local_s-mean < delta*mean) & (local_s-mean > -delta*mean)):
-            print(f'vreg ({idx+1} onward): {series[idx+1:].mean()}')
-            return
+            if return_smoth_series:
+                return idx, mean, series
+            return idx, mean
+    return 0, 0
+
 
 def run():
     di = load_data([os.path.join('data', file) for file in os.listdir('data')])
@@ -53,8 +57,9 @@ def run():
         print(slic)
         print(info.get('data'))
         print(convolute(info.get('data')))
-    linfilter(di.get("plota_logo.csv [40]").get('data'))
-    get_vreg(di.get("plota_logo.csv [40]").get('data'))
+    # linfilter(di.get("plota_logo.csv [40]").get('data'))
+    print(get_vreg(di.get("plota_logo.csv [40]").get('data')))
+
 
 if __name__ == "__main__":
     run()
