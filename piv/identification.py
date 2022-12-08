@@ -5,7 +5,7 @@ import control
 
 def run():
     full_series = pd.read_csv('de_10_em_10.csv', sep=';')['Output']
-    print(full_series)
+    # print(full_series)
 
     delta_h_data_di = {
         's_20_to_30': {
@@ -47,7 +47,7 @@ def run():
     # delta_h_data_di = calculate_kp(delta_h_data_di)
     delta_h_data_di = calculate_tf(delta_h_data_di)
 
-    print(delta_h_data_di)
+    # print(delta_h_data_di)
     for key, value in delta_h_data_di.items():
         print(key)
         pprint.pprint({v_key: v_value for v_key, v_value in value.items() if v_key != 'data'})
